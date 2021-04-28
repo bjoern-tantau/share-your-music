@@ -1,0 +1,51 @@
+body {
+    font-family: sans-serif;
+}
+main {
+    display: grid;
+    grid-template-areas:
+        "clients clients"
+        "player playlist"
+        "upload files"
+        ;
+}
+.clients {
+    grid-area: clients;
+}
+.player {
+    grid-area: player;
+}
+.playlist {
+    grid-area: playlist;
+}
+.files {
+    grid-area: files;
+}
+.upload {
+    grid-area: upload;
+}
+
+audio {
+    vertical-align: middle;
+}
+
+li.play {
+    list-style-type: "⏵ ";
+}
+li.pause {
+    list-style-type: "\23F8 ";
+}
+
+li.dir {
+    cursor: pointer;
+    list-style-type: "> ";
+}
+li.dir.open {
+    list-style-type: "v ";
+}
+li.dir > ul {
+    display: none;
+}
+li.dir.open > ul {
+    display: block;
+}

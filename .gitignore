@@ -1,0 +1,5 @@
+/vendor/
+/nbproject/
+/uploads/*
+!/uploads/.gitkeep
+/config/config.php
