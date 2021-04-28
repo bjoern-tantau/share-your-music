@@ -159,7 +159,8 @@ $uploadDir = realpath($config['upload_dir']) . '/' . $clientId;
 
             <section class="upload">
                 <h1>Upload</h1>
-                <input type="file" name="files" id="files" multiple="" directory="" webkitdirectory="" mozdirectory="">
+                <progress value="0" max="0"></progress>
+                <input type="file" name="files" id="files" multiple="" directory="" webkitdirectory="" mozdirectory="" />
             </section>
         </main>
     </body>

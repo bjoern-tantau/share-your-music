@@ -109,24 +109,35 @@ document.querySelectorAll('.playlists > ul > li > a').forEach(a => {
 document.querySelector('#files').addEventListener('change', e => {
     const files = Array.from(e.target.files);
     const promises = [];
-    files.forEach(file => {
+    const percentages = [];
+    function updateProgress() {
+        const progress = document.querySelector('.upload progress');
+        progress.value = percentages.reduce((acc, cur) => {
+            return acc + cur;
+        });
+        progress.max = percentages.length * 100;
+    }
+    files.forEach((file, index) => {
         promises.push(new Promise((resolve, reject) => {
-            let percentage = 100;
+            percentages[index] = 0;
 
             const xhr = new XMLHttpRequest();
             xhr.open('POST', '/upload.php', true);
             xhr.addEventListener('readystatechange', e => {
                 if (xhr.readyState === 4) {
                     resolve(xhr);
+                    updateProgress();
                 }
             });
             xhr.upload.addEventListener('progress', e => {
                 if (e.lengthComputable) {
-                    percentage = Math.round((e.loaded * 100) / e.total);
+                    percentages[index] = Math.round((e.loaded * 100) / e.total);
+                    updateProgress();
                 }
             });
             xhr.upload.addEventListener('load', e => {
-                percentage = 100;
+                percentages[index] = 100;
+                updateProgress();
             });
             const formData = new FormData();
             formData.append('fullpath', file.webkitRelativePath);
