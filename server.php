@@ -8,7 +8,7 @@ use ShareYourMusic\Server\Slave;
 $config = include __DIR__ . '/config/config.php';
 
 $clients = new SplObjectStorage();
-$app     = new App($config['ws_hostname'], $config['ws_port']);
+$app     = new App($config['ws_hostname'], $config['ws_port'], '0.0.0.0');
 $app->route('/echo', new EchoServer());
 $app->route('/master', new Master($clients));
 $app->route('/slave', new Slave($clients));
