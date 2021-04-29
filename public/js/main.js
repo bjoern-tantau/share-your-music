@@ -3,17 +3,21 @@ const host = 'ws://' + window.ws_hostname + ':' + window.ws_port + '/slave';
 const query = new URLSearchParams(window.location.search);
 
 const socket = new WebSocket(host);
+
+function getNowPlaying() {
+    const data = {
+        method: 'getNowPlaying'
+    };
+    socket.send(JSON.stringify(data));
+}
+
 socket.addEventListener('open', e => {
-    let data = {
+    const data = {
         method: 'setId',
         id: query.get('id')
     };
     socket.send(JSON.stringify(data));
-
-    data = {
-        method: 'getNowPlaying'
-    };
-    socket.send(JSON.stringify(data));
+    getNowPlaying();
 });
 
 
@@ -21,10 +25,17 @@ const audio = document.createElement('audio');
 audio.controls = true;
 document.body.appendChild(audio);
 
+audio.addEventListener('play', getNowPlaying);
+audio.addEventListener('pause', e => {
+    audio.removeEventListener('play', getNowPlaying);
+    audio.addEventListener('play', getNowPlaying);
+});
+
 socket.addEventListener('message', e => {
     const data = JSON.parse(e.data);
     switch (data.method) {
         case 'setNowPlaying':
+            audio.removeEventListener('play', getNowPlaying);
             audio.src = data.src;
             audio.currentTime = data.currentTime;
             if (data.paused) {
