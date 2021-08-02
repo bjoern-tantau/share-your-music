@@ -36,16 +36,16 @@ li.pause {
     list-style-type: "\23F8 ";
 }
 
-li.dir {
+li.dir, li.playlist {
     cursor: pointer;
     list-style-type: "> ";
 }
-li.dir.open {
+li.dir.open, li.playlist.open {
     list-style-type: "v ";
 }
-li.dir > ul {
+li.dir > ul, li.playlist > ul {
     display: none;
 }
-li.dir.open > ul {
+li.dir.open > ul, li.playlist.open > ul {
     display: block;
 }

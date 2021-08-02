@@ -87,9 +87,17 @@ audio.addEventListener('playlistChanged', e => {
     });
 });
 
+document.querySelectorAll('li.playlist').forEach(li => {
+    li.addEventListener('click', e => {
+        e.stopPropagation();
+        li.classList.toggle('open');
+    });
+});
+
 document.querySelectorAll('.playlists > ul > li > a').forEach(a => {
     a.addEventListener('click', event => {
         event.preventDefault();
+        event.stopPropagation();
         audio.setPlaylist(a.href)
                 .then(player => player.play());
     });
@@ -97,6 +105,7 @@ document.querySelectorAll('.playlists > ul > li > a').forEach(a => {
     a.parentNode.querySelectorAll('li ul li a').forEach(musicLink => {
         musicLink.addEventListener('click', event => {
             event.preventDefault();
+            event.stopPropagation();
             audio.setPlaylist(a.href)
                     .then(player => {
                         player.src = musicLink.href;
