@@ -15,7 +15,7 @@ socket.addEventListener('open', e => {
 
 const audio = new PlaylistPlayer();
 audio.controls = true;
-audio.loopPlaylist = true;
+audio.repeat = 'all';
 document.querySelector('.player').appendChild(audio);
 if (localStorage.getItem('volume')) {
     audio.volume = localStorage.getItem('volume');
