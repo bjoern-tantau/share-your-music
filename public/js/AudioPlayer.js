@@ -10,7 +10,11 @@ class AudioPlayer extends HTMLElement {
             #volume {
                 width: 4em;
             }
+            .hidden {
+                display: none;
+            }
         </style>
+        <div class="now-playing"></div>
         <audio></audio>
         <fieldset id="controls">
             <label for="volume">&#x1F50A;</label>
@@ -18,6 +22,11 @@ class AudioPlayer extends HTMLElement {
         </fieldset>
 `;
         this.audio = shadow.querySelector('audio');
+
+        this.audio.addEventListener('play', e => {
+            const src = this.audio.src;
+            shadow.querySelector('.now-playing').textContent = decodeURI(src.substr(src.lastIndexOf('/') + 1));
+        });
 
         const volume = shadow.querySelector('#volume');
         const volumeLabel = shadow.querySelector('label[for="volume"]');
@@ -52,6 +61,14 @@ class AudioPlayer extends HTMLElement {
                 });
             }
         });
+    }
+
+    get nowPlaying() {
+        return !super.shadowRoot.querySelector('.now-playing').classList.contains('hidden');
+    }
+
+    set nowPlaying(value) {
+        super.shadowRoot.querySelector('.now-playing').classList.toggle('hidden', !value);
     }
 }
 

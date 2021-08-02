@@ -22,6 +22,14 @@ class PlaylistPlayer extends AudioPlayer {
 `;
         super.shadowRoot.appendChild(style);
 
+        const nowPlaying = document.createElement('div');
+        nowPlaying.className = 'now-playing-playlist';
+        super.shadowRoot.querySelector('.now-playing').before(nowPlaying);
+        this.addEventListener('playlistChanged', e => {
+            const src = this.playlistUrl;
+            nowPlaying.textContent = decodeURI(src.substr(src.lastIndexOf('/') + 1));
+        });
+
         const controls = super.shadowRoot.querySelector('#controls');
 
         const previous = document.createElement('button');

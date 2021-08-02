@@ -30,6 +30,7 @@ if (localStorage.getItem('volume')) {
 audio.addEventListener('volumechange', e => {
     localStorage.setItem('volume', audio.volume);
 });
+audio.nowPlaying = false;
 document.body.appendChild(audio);
 
 audio.addEventListener('play', getNowPlaying);
