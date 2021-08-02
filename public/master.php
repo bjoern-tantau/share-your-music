@@ -64,8 +64,6 @@ $uploadDir = realpath($config['upload_dir']) . '/' . $clientId;
             </section>
             <section class="player">
                 <h1>Player</h1>
-                <button class="previous">&lt;</button>
-                <button class="next">&gt;</button>
             </section>
 
             <section class="playlists">

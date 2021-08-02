@@ -1,4 +1,6 @@
-class PlaylistPlayer extends Audio {
+import AudioPlayer from './AudioPlayer.js';
+
+class PlaylistPlayer extends AudioPlayer {
     constructor(url) {
         super()
         this.playlist = [];
@@ -11,6 +13,19 @@ class PlaylistPlayer extends Audio {
         this.addEventListener('ended', event => {
             this.next();
         });
+        const controls = super.shadowRoot.querySelector('#controls');
+        const previous = document.createElement('button');
+        previous.innerHTML = '&#x23EE;';
+        previous.addEventListener('click', event => {
+            this.previous();
+        });
+        controls.appendChild(previous);
+        const next = document.createElement('button');
+        next.innerHTML = '&#x23ED;';
+        next.addEventListener('click', event => {
+            this.next();
+        });
+        controls.appendChild(next);
     }
 
     previous() {
@@ -94,5 +109,6 @@ class PlaylistPlayer extends Audio {
         }
     }
 }
+customElements.define("playlist-player", PlaylistPlayer);
 
 export default PlaylistPlayer;

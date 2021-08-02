@@ -13,15 +13,15 @@ socket.addEventListener('open', e => {
     socket.send(JSON.stringify(data));
 });
 
-const player = new PlaylistPlayer();
-player.controls = true;
-player.loopPlaylist = true;
-document.querySelector('.player').appendChild(player);
-document.querySelector('.player .previous').addEventListener('click', event => {
-    player.previous();
-});
-document.querySelector('.player .next').addEventListener('click', event => {
-    player.next();
+const audio = new PlaylistPlayer();
+audio.controls = true;
+audio.loopPlaylist = true;
+document.querySelector('.player').appendChild(audio);
+if (localStorage.getItem('volume')) {
+    audio.volume = localStorage.getItem('volume');
+}
+audio.addEventListener('volumechange', e => {
+    localStorage.setItem('volume', audio.volume);
 });
 
 const queue = [];
@@ -30,9 +30,9 @@ let position = 0;
 function nowPlaying(event, sendTo) {
     const data = {
         method: 'setNowPlaying',
-        src: player.src,
-        paused: player.paused,
-        currentTime: player.currentTime,
+        src: audio.src,
+        paused: audio.paused,
+        currentTime: audio.currentTime,
         sendTo: sendTo
     };
     socket.send(JSON.stringify(data));
@@ -56,8 +56,8 @@ const events = [
     'seeked'
 ];
 events.forEach(eventName => {
-    player.addEventListener(eventName, nowPlaying);
-    player.addEventListener(eventName, e => {
+    audio.addEventListener(eventName, nowPlaying);
+    audio.addEventListener(eventName, e => {
         document.querySelectorAll('li > a').forEach(a => {
             if (a.href.endsWith('.m3u')) {
                 return;
@@ -66,13 +66,13 @@ events.forEach(eventName => {
             li.classList.remove('play');
             li.classList.remove('pause');
             li.classList.remove('seeked');
-            if (a.href == player.src) {
+            if (a.href == audio.src) {
                 li.classList.add(eventName);
             }
         });
     });
 });
-player.addEventListener('playlistChanged', e => {
+audio.addEventListener('playlistChanged', e => {
     document.querySelectorAll('li > a').forEach(a => {
         if (!a.href.endsWith('.m3u')) {
             return;
@@ -81,7 +81,7 @@ player.addEventListener('playlistChanged', e => {
         li.classList.remove('play');
         li.classList.remove('pause');
         li.classList.remove('seeked');
-        if (a.href == player.playlistUrl) {
+        if (a.href == audio.playlistUrl) {
             li.classList.add('play');
         }
     });
@@ -90,14 +90,14 @@ player.addEventListener('playlistChanged', e => {
 document.querySelectorAll('.playlists > ul > li > a').forEach(a => {
     a.addEventListener('click', event => {
         event.preventDefault();
-        player.setPlaylist(a.href)
+        audio.setPlaylist(a.href)
                 .then(player => player.play());
     });
 
     a.parentNode.querySelectorAll('li ul li a').forEach(musicLink => {
         musicLink.addEventListener('click', event => {
             event.preventDefault();
-            player.setPlaylist(a.href)
+            audio.setPlaylist(a.href)
                     .then(player => {
                         player.src = musicLink.href;
                         player.play();
@@ -163,10 +163,10 @@ document.querySelectorAll('.files a').forEach(a => {
     a.addEventListener('click', e => {
         e.preventDefault();
         e.stopPropagation();
-        player.src = a.href;
-        player.play();
-        player.addEventListener('playlistReady', e => {
-            player.play();
+        audio.src = a.href;
+        audio.play();
+        audio.addEventListener('playlistReady', e => {
+            audio.play();
         });
     });
 });

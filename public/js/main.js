@@ -1,3 +1,5 @@
+import AudioPlayer from './AudioPlayer.js';
+
 const host = 'ws://' + window.ws_hostname + ':' + window.ws_port + '/slave';
 
 const query = new URLSearchParams(window.location.search);
@@ -21,8 +23,13 @@ socket.addEventListener('open', e => {
 });
 
 
-const audio = document.createElement('audio');
-audio.controls = true;
+const audio = new AudioPlayer();
+if (localStorage.getItem('volume')) {
+    audio.volume = localStorage.getItem('volume');
+}
+audio.addEventListener('volumechange', e => {
+    localStorage.setItem('volume', audio.volume);
+});
 document.body.appendChild(audio);
 
 audio.addEventListener('play', getNowPlaying);
