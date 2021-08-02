@@ -46,6 +46,19 @@ class PlaylistPlayer extends AudioPlayer {
         });
         controls.appendChild(repeat);
         this.repeat = 'none';
+
+        const shuffle = document.createElement('button');
+        shuffle.className = 'shuffle';
+        shuffle.innerHTML = '&#x21C9;';
+        shuffle.addEventListener('click', event => {
+            if (this.shuffle()) {
+                shuffle.innerHTML = '&#x1F500;';
+            } else {
+                shuffle.innerHTML = '&#x21C9;';
+            }
+        });
+        controls.appendChild(shuffle);
+        this.isShuffled = false;
     }
 
     previous() {
@@ -99,6 +112,10 @@ class PlaylistPlayer extends AudioPlayer {
                         url.search = '';
                         this.playlist.push(url.href);
                     });
+                    this.isShuffled = false;
+                    const shuffle = super.shadowRoot.querySelector('.shuffle');
+                    shuffle.innerHTML = '&#x21C9;';
+                    this.unshuffledPlaylist = this.playlist.slice(0);
                     this.src = this.playlist[this.currentPosition];
                     this.dispatchEvent(new Event('playlistReady'));
                     return this;
@@ -112,6 +129,35 @@ class PlaylistPlayer extends AudioPlayer {
         this.playlist = [];
         this.dispatchEvent(new Event('playlistEmptied'));
         this.dispatchEvent(new Event('playlistChanged'));
+    }
+
+    shuffle() {
+        if (this.isShuffled) {
+            this.playlist = this.unshuffledPlaylist.slice(0);
+        } else {
+            let currentIndex = this.playlist.length;
+            let randomIndex;
+
+            // While there remain elements to shuffle...
+            while (0 !== currentIndex) {
+
+                // Pick a remaining element...
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+
+                // And swap it with the current element.
+                [this.playlist[currentIndex], this.playlist[randomIndex]] = [
+                    this.playlist[randomIndex], this.playlist[currentIndex]];
+            }
+        }
+        this.isShuffled = !this.isShuffled;
+        this.setPositionToCurrentlyPlaying();
+        this.dispatchEvent(new Event('shuffled'));
+        return this.isShuffled;
+    }
+
+    setPositionToCurrentlyPlaying() {
+        this.currentPosition = this.playlist.indexOf(this.src);
     }
 
     get src() {
