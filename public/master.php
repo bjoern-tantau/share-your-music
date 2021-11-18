@@ -68,6 +68,7 @@ $uploadDir = realpath($config['upload_dir']) . '/' . $clientId;
 
             <section class="playlists">
                 <h1>Playlists</h1>
+                <input placeholder="Filter" class="filter" />
                 <ul>
                     <?php
                     $files = glob_recursive($uploadDir . '/*.m3u');
@@ -99,6 +100,7 @@ $uploadDir = realpath($config['upload_dir']) . '/' . $clientId;
 
             <section class="files">
                 <h1>Dateien</h1>
+                <input placeholder="Filter" class="filter" />
                 <ul>
                     <?php
 

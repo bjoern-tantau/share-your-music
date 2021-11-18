@@ -50,6 +50,10 @@ li.dir.open > ul, li.playlist.open > ul {
     display: block;
 }
 
+.hidden {
+    display: none;
+}
+
 .delete {
     margin-left: 1em;
 }

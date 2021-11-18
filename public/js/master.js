@@ -195,3 +195,21 @@ document.querySelectorAll('.files a.delete').forEach(a => {
         }
     });
 });
+
+document.querySelectorAll('input.filter').forEach(input => {
+    input.addEventListener('input', e => {
+        input.parentNode.querySelectorAll('li').forEach(li => {
+            if (!input.value) {
+                li.classList.remove('hidden');
+                li.classList.remove('open');
+                return;
+            }
+            li.classList.add('hidden');
+            li.classList.remove('open');
+            if (li.textContent.toLowerCase().includes(input.value.toLowerCase())) {
+                li.classList.remove('hidden');
+                li.classList.add('open');
+            }
+        });
+    });
+});
