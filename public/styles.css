@@ -49,3 +49,7 @@ li.dir > ul, li.playlist > ul {
 li.dir.open > ul, li.playlist.open > ul {
     display: block;
 }
+
+.delete {
+    margin-left: 1em;
+}

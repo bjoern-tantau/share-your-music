@@ -168,7 +168,7 @@ document.querySelectorAll('li.dir').forEach(li => {
     });
 });
 
-document.querySelectorAll('.files a').forEach(a => {
+document.querySelectorAll('.files a.file').forEach(a => {
     a.addEventListener('click', e => {
         e.preventDefault();
         e.stopPropagation();
@@ -177,5 +177,21 @@ document.querySelectorAll('.files a').forEach(a => {
         audio.addEventListener('playlistReady', e => {
             audio.play();
         });
+    });
+});
+
+document.querySelectorAll('.files a.delete').forEach(a => {
+    a.addEventListener('click', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        const url = new URL(a.href);
+        if (confirm('Do you really want to delete ' + url.searchParams.get('file') + '?')) {
+            fetch(url.href)
+                    .then(response => {
+                        if (response.status >= 200 && response.status < 400) {
+                            a.parentNode.remove();
+                        }
+                    });
+        }
     });
 });
