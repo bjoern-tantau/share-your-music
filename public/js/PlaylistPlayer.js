@@ -131,25 +131,31 @@ class PlaylistPlayer extends AudioPlayer {
         return fetch(url)
                 .then(response => response.json())
                 .then(list => {
-                    this.currentPosition = 0;
-                    this.playlist = [];
-                    list.forEach(item => {
-                        const url = new URL(window.location.href);
-                        url.pathname = item;
-                        url.search = '';
-                        this.playlist.push(url.href);
-                    });
-                    this.unshuffledPlaylist = this.playlist.slice(0);
-                    if (this.isShuffled) {
-                        // mark it as unshuffled so that it will be shuffled again
-                        this.isShuffled = false;
-                        this.shuffle();
-                    }
+                    this.setPlaylistItems(list);
                     this.src = this.playlist[this.currentPosition];
                     this.dispatchEvent(new Event('playlistReady'));
                     return this;
                 })
                 ;
+    }
+
+    setPlaylistItems(items)
+    {
+        this.currentPosition = 0;
+        this.playlist = [];
+        items.forEach(item => {
+            const url = new URL(window.location.href);
+            url.pathname = item;
+            url.search = '';
+            this.playlist.push(url.href);
+        });
+        this.unshuffledPlaylist = this.playlist.slice(0);
+        if (this.isShuffled) {
+            // mark it as unshuffled so that it will be shuffled again
+            this.isShuffled = false;
+            this.shuffle();
+        }
+        return this;
     }
 
     emptyPlaylist() {
@@ -158,6 +164,7 @@ class PlaylistPlayer extends AudioPlayer {
         this.playlist = [];
         this.dispatchEvent(new Event('playlistEmptied'));
         this.dispatchEvent(new Event('playlistChanged'));
+        return this;
     }
 
     shuffle() {

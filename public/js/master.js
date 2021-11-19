@@ -1,4 +1,5 @@
 import PlaylistPlayer from './PlaylistPlayer.js';
+import SortableList from './SortableList.js';
 
 const host = 'ws://' + window.ws_hostname + ':' + window.ws_port + '/master';
 const socket = new WebSocket(host);
@@ -212,5 +213,34 @@ document.querySelectorAll('input.filter').forEach(input => {
                 li.classList.add('open');
             }
         });
+    });
+});
+
+document.querySelectorAll('li.playlist').forEach(li => {
+    const playlistLink = li.querySelector('a');
+    const list = new SortableList(li.querySelector('ul'));
+    list.addEventListener('sorted', e => {
+        const newList = [];
+        list.ul.querySelectorAll('a').forEach(a => {
+            const url = new URL(a.href);
+            newList.push(decodeURI(url.pathname));
+        });
+        fetch(playlistLink.href, {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'MasterId ' + query.get('id')
+            },
+            method: 'PUT',
+            body: JSON.stringify(newList)
+        })
+                .then(response => response.json())
+                .then(list => {
+                    if (playlistLink.href == audio.playlistUrl) {
+                        audio.setPlaylistItems(list);
+                        audio.setPositionToCurrentlyPlaying();
+                    }
+                })
+                ;
     });
 });

@@ -16,6 +16,7 @@ $emitter  = new Laminas\HttpHandlerRunner\Emitter\SapiStreamEmitter();
 $uploadDir     = realpath(__DIR__ . '/../uploads');
 $requestedPath = urldecode($_SERVER['REQUEST_URI']);
 $path          = realpath($uploadDir . $requestedPath);
+$authorized    = false;
 
 if (strpos($path, $uploadDir) !== 0 || !is_file($path) || !is_readable($path)) {
     $emitter->emit(
@@ -25,7 +26,26 @@ if (strpos($path, $uploadDir) !== 0 || !is_file($path) || !is_readable($path)) {
     exit;
 }
 
+if (!empty($authorization = $request->getHeaderLine('Authorization'))) {
+    $masterId = \Jasny\str_after($authorization, 'MasterId ');
+    $clientId = explode('/', trim($requestedPath, '/'), 2)[0];
+    if (sha1($masterId) === $clientId) {
+        $authorized = true;
+    }
+}
+
 if (str_ends_with($path, '.m3u')) {
+    if ($authorized && $request->getMethod() === 'PUT') {
+        $m3uData = new \M3uParser\M3uData();
+        foreach ($request->getParsedBody() as $file) {
+            $entry = new \M3uParser\M3uEntry();
+            $filePath  = \Jasny\str_after($file, dirname($requestedPath) . '/');
+            $entry->setPath($filePath);
+            $m3uData->append($entry);
+        }
+        file_put_contents($path, (string) $m3uData);
+    }
+
     $m3uParser = new M3uParser();
     $m3uParser->addDefaultTags();
     $files     = [];
