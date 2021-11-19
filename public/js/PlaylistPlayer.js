@@ -55,11 +55,29 @@ class PlaylistPlayer extends AudioPlayer {
         controls.appendChild(repeat);
         this.repeat = 'none';
 
+        this.addEventListener('repeatChanged', event => {
+            switch (this.repeat) {
+                case 'none':
+                    repeat.innerHTML = '&#x1F501;';
+                    repeat.classList.add('none');
+                    break;
+                case 'all':
+                    repeat.innerHTML = '&#x1F501;';
+                    repeat.classList.remove('none');
+                    break;
+                case 'one':
+                    repeat.innerHTML = '&#x1F502;';
+                    repeat.classList.remove('none');
+                    break;
+            }
+        });
+
         const shuffle = document.createElement('button');
         shuffle.className = 'shuffle';
         shuffle.innerHTML = '&#x21C9;';
-        shuffle.addEventListener('click', event => {
-            if (this.shuffle()) {
+        shuffle.addEventListener('click', event => this.shuffle());
+        this.addEventListener('shuffleChanged', event => {
+            if (this.isShuffled) {
                 shuffle.innerHTML = '&#x1F500;';
             } else {
                 shuffle.innerHTML = '&#x21C9;';
@@ -67,6 +85,7 @@ class PlaylistPlayer extends AudioPlayer {
         });
         controls.appendChild(shuffle);
         this.isShuffled = false;
+        this.unshuffledPlaylist = this.playlist = [];
     }
 
     previous() {
@@ -120,10 +139,12 @@ class PlaylistPlayer extends AudioPlayer {
                         url.search = '';
                         this.playlist.push(url.href);
                     });
-                    this.isShuffled = false;
-                    const shuffle = super.shadowRoot.querySelector('.shuffle');
-                    shuffle.innerHTML = '&#x21C9;';
                     this.unshuffledPlaylist = this.playlist.slice(0);
+                    if (this.isShuffled) {
+                        // mark it as unshuffled so that it will be shuffled again
+                        this.isShuffled = false;
+                        this.shuffle();
+                    }
                     this.src = this.playlist[this.currentPosition];
                     this.dispatchEvent(new Event('playlistReady'));
                     return this;
@@ -143,6 +164,7 @@ class PlaylistPlayer extends AudioPlayer {
         if (this.isShuffled) {
             this.playlist = this.unshuffledPlaylist.slice(0);
         } else {
+            this.unshuffledPlaylist = this.playlist.slice(0);
             let currentIndex = this.playlist.length;
             let randomIndex;
 
@@ -160,12 +182,15 @@ class PlaylistPlayer extends AudioPlayer {
         }
         this.isShuffled = !this.isShuffled;
         this.setPositionToCurrentlyPlaying();
-        this.dispatchEvent(new Event('shuffled'));
+        this.dispatchEvent(new Event('shuffleChanged'));
         return this.isShuffled;
     }
 
     setPositionToCurrentlyPlaying() {
-        this.currentPosition = this.playlist.indexOf(this.src);
+        this.currentPosition = 0;
+        if (this.playlist.indexOf(this.src) >= 0) {
+            this.currentPosition = this.playlist.indexOf(this.src);
+        }
     }
 
     get src() {
@@ -213,21 +238,6 @@ class PlaylistPlayer extends AudioPlayer {
             throw "Only none, all and one are valid values for repeat.";
         }
         this._repeat = value;
-        const button = super.shadowRoot.querySelector('.repeat');
-        switch (this.repeat) {
-            case 'none':
-                button.innerHTML = '&#x1F501;';
-                button.classList.add('none');
-                break;
-            case 'all':
-                button.innerHTML = '&#x1F501;';
-                button.classList.remove('none');
-                break;
-            case 'one':
-                button.innerHTML = '&#x1F502;';
-                button.classList.remove('none');
-                break;
-        }
         this.dispatchEvent(new Event('repeatChanged'));
     }
 }
