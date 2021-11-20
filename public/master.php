@@ -104,7 +104,7 @@ $uploadDir = realpath($config['upload_dir']) . '/' . $clientId;
                 <ul>
                     <?php
 
-                    function listFiles($uploadDir, $clientId, $files, $dir = null, $query = [])
+                    function listFiles($uploadDir, $clientId, $files, $dir = null)
                     {
                         if (is_string($files)) {
                             $shortpath = str_after($files, $uploadDir);
@@ -114,7 +114,7 @@ $uploadDir = realpath($config['upload_dir']) . '/' . $clientId;
                                 <a href="<?php echo htmlspecialchars(rawurldecode($clientId . $shortpath)) ?>" class="file">
                                     <?php echo htmlspecialchars(basename($shortpath)) ?>
                                 </a>
-                                <a href="delete.php?<?php echo http_build_query(['id' => $query['id'], 'file' => $shortpath]) ?>" class="delete">Delete</a>
+                                <button class="delete">Delete</button>
                             </li>
                             <?php
                             return;
@@ -139,7 +139,7 @@ $uploadDir = realpath($config['upload_dir']) . '/' . $clientId;
                                 <ul>
                                     <?php
                                     foreach ($files as $key => $value) {
-                                        listFiles($uploadDir, $clientId, $value, $key, $query);
+                                        listFiles($uploadDir, $clientId, $value, $key);
                                     }
 
                                     ?>
@@ -149,12 +149,12 @@ $uploadDir = realpath($config['upload_dir']) . '/' . $clientId;
                             return;
                         }
                         foreach ($files as $key => $value) {
-                            listFiles($uploadDir, $clientId, $value, $key, $query);
+                            listFiles($uploadDir, $clientId, $value, $key);
                         }
                     }
 
                     ?>
-                    <?php $files = listFiles($uploadDir, $clientId, glob_recursive($uploadDir . '/*'), null, $query); ?>
+                    <?php $files = listFiles($uploadDir, $clientId, glob_recursive($uploadDir . '/*'), null); ?>
                 </ul>
             </section>
 

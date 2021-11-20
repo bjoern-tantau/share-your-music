@@ -34,12 +34,21 @@ if (!empty($authorization = $request->getHeaderLine('Authorization'))) {
     }
 }
 
+if ($authorized && $request->getMethod() === 'DELETE') {
+    unlink($path);
+    $emitter->emit(
+        $response
+            ->withStatus(204)
+    );
+    exit;
+}
+
 if (str_ends_with($path, '.m3u')) {
     if ($authorized && $request->getMethod() === 'PUT') {
         $m3uData = new \M3uParser\M3uData();
         foreach ($request->getParsedBody() as $file) {
-            $entry = new \M3uParser\M3uEntry();
-            $filePath  = \Jasny\str_after($file, dirname($requestedPath) . '/');
+            $entry    = new \M3uParser\M3uEntry();
+            $filePath = \Jasny\str_after($file, dirname($requestedPath) . '/');
             $entry->setPath($filePath);
             $m3uData->append($entry);
         }

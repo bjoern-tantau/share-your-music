@@ -182,16 +182,22 @@ document.querySelectorAll('.files a.file').forEach(a => {
     });
 });
 
-document.querySelectorAll('.files a.delete').forEach(a => {
-    a.addEventListener('click', e => {
+document.querySelectorAll('.files button.delete').forEach(button => {
+    button.addEventListener('click', e => {
         e.preventDefault();
         e.stopPropagation();
+        const a = button.parentNode.querySelector('a');
         const url = new URL(a.href);
-        if (confirm('Do you really want to delete ' + url.searchParams.get('file') + '?')) {
-            fetch(url.href)
+        if (confirm('Do you really want to delete "' + a.textContent.trim() + '"?')) {
+            fetch(url.href, {
+                headers: {
+                    'Authorization': 'MasterId ' + query.get('id')
+                },
+                method: 'DELETE'
+            })
                     .then(response => {
                         if (response.status >= 200 && response.status < 400) {
-                            a.parentNode.remove();
+                            button.parentNode.remove();
                         }
                     });
         }
