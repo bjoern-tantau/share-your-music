@@ -23,7 +23,9 @@ if (empty($query['id']) || preg_match('/[^0-9a-f]+/', $query['id'])) {
             window.ws_port = <?php echo json_encode($config['ws_port']) ?>;
         </script>
         <script type="module" src="js/main.js"></script>
+        <link rel="stylesheet" type="text/css" href="styles.css" />
     </head>
     <body>
+        <footer>Favicon by <a href="https://thenounproject.com/corpusdelicti/">corpus delicti</a></footer>
     </body>
 </html>

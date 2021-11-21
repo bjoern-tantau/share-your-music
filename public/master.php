@@ -51,6 +51,8 @@ $uploadDir = realpath($config['upload_dir']) . '/' . $clientId;
         </script>
         <script type="module" src="js/master.js"></script>
         <link rel="stylesheet" type="text/css" href="styles.css" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="alternate icon" href="/favicon.ico" />
     </head>
     <body>
         <main>
@@ -165,5 +167,6 @@ $uploadDir = realpath($config['upload_dir']) . '/' . $clientId;
                 <input type="file" name="files" id="files" multiple="" directory="" webkitdirectory="" mozdirectory="" />
             </section>
         </main>
+        <footer>Favicon by <a href="https://thenounproject.com/corpusdelicti/">corpus delicti</a></footer>
     </body>
 </html>

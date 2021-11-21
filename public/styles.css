@@ -1,5 +1,14 @@
 body {
+    display: flex;
+    box-sizing: border-box;
     font-family: sans-serif;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+    padding: 1em;
+}
+audio-player {
+    flex-grow: 1;
 }
 main {
     display: grid;
@@ -8,6 +17,12 @@ main {
         "player playlist files"
         "upload upload upload"
         ;
+    flex-grow: 1;
+}
+footer {
+    margin-top: 2rem;
+    order: 10000;
+    font-size: 0.8rem;
 }
 .clients {
     grid-area: clients;
