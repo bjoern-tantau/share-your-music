@@ -86,6 +86,7 @@ $uploadDir = realpath($config['upload_dir']) . '/' . $clientId;
                                             <a href="<?php echo htmlspecialchars(rawurldecode($clientId . dirname($shortpath) . '/' . $musicFile->getPath())) ?>">
                                                 <?php echo htmlspecialchars($musicFile->getPath()) ?>
                                             </a>
+                                            <button class="delete">&#x1F5D1;</button>
                                         </li>
                                     <?php endforeach; ?>
                                 </ul>
@@ -114,7 +115,7 @@ $uploadDir = realpath($config['upload_dir']) . '/' . $clientId;
                                 <a href="<?php echo htmlspecialchars(rawurldecode($clientId . $shortpath)) ?>" class="file">
                                     <?php echo htmlspecialchars(basename($shortpath)) ?>
                                 </a>
-                                <button class="delete">Delete</button>
+                                <button class="delete">&#x1F5D1;</button>
                             </li>
                             <?php
                             return;

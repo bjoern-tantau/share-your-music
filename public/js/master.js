@@ -197,11 +197,25 @@ document.querySelectorAll('.files button.delete').forEach(button => {
             })
                     .then(response => {
                         if (response.status >= 200 && response.status < 400) {
-                            button.parentNode.remove();
+                            document.querySelectorAll('a').forEach(a => {
+                                if (a.href == url) {
+                                    a.parentNode.remove();
+                                }
+                            });
                         }
                     });
         }
     });
+});
+
+document.querySelectorAll('.playlists').forEach(playlists => {
+    playlists.addEventListener('click', e => {
+        if (e.target.nodeName === 'BUTTON' && e.target.classList.contains('delete')) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.target.parentNode.remove();
+        }
+    }, true);
 });
 
 document.querySelectorAll('input.filter').forEach(input => {
@@ -222,12 +236,85 @@ document.querySelectorAll('input.filter').forEach(input => {
     });
 });
 
-document.querySelectorAll('li.playlist').forEach(li => {
-    const playlistLink = li.querySelector('a');
-    const list = new SortableList(li.querySelector('ul'));
-    list.addEventListener('sorted', e => {
+let lastDragged;
+
+document.querySelectorAll('li.playlist a, li.file a').forEach(a => a.draggable = false);
+
+document.querySelectorAll('li.playlist li, li.file').forEach(li => {
+    li.draggable = true;
+});
+
+document.querySelectorAll('ul.music').forEach(ul => {
+    ul.addEventListener('drag', e => {
+        if (e.target.parentNode === ul) {
+            lastDragged = e.target;
+        }
+    });
+    ul.addEventListener('dragend', e => {
+        lastDragged = null;
+    });
+});
+
+document.querySelectorAll('.files ul').forEach(ul => {
+    ul.addEventListener('drag', e => {
+        if (e.target.parentNode === ul && e.target.classList.contains('file')) {
+            lastDragged = e.target;
+        }
+    });
+    ul.addEventListener('dragend', e => {
+        lastDragged = null;
+    });
+});
+
+document.querySelectorAll('li.playlist ul').forEach(ul => {
+    const list = new SortableList(ul);
+    ul.addEventListener('drop', e => {
+        e.preventDefault();
+        if (lastDragged.parentNode != ul) {
+            let over = e.target;
+            while (over.parentNode !== ul) {
+                over = over.parentNode;
+            }
+            const newLi = lastDragged.cloneNode(true);
+            over.before(newLi);
+        }
+    });
+});
+
+const playlistObserver = new MutationObserver(mutations => {
+    mutations.forEach(mutation => {
+        let ul = mutation.target;
+        let li = mutation.target;
+        switch (mutation.type) {
+            case 'childList':
+                if (mutation.addedNodes.length > 1) {
+                    return;
+                }
+                if (mutation.removedNodes.length > 1) {
+                    return;
+                }
+                if (mutation.addedNodes.length === 1) {
+                    li = mutation.addedNodes[0];
+                }
+                if (mutation.removedNodes.length === 1) {
+                    li = mutation.removedNodes[0];
+                }
+                break;
+            case 'attributes':
+                if (!mutation.oldValue || !mutation.oldValue.includes('sorting')) {
+                    return;
+                }
+                ul = li.parentNode;
+                break;
+            default:
+                return;
+        }
+        if (li.classList.contains('sorting')) {
+            return;
+        }
+        const playlistLink = ul.parentNode.querySelector('a');
         const newList = [];
-        list.ul.querySelectorAll('a').forEach(a => {
+        ul.querySelectorAll('a').forEach(a => {
             const url = new URL(a.href);
             newList.push(decodeURI(url.pathname));
         });
@@ -249,4 +336,11 @@ document.querySelectorAll('li.playlist').forEach(li => {
                 })
                 ;
     });
+});
+playlistObserver.observe(document.querySelector('.playlists ul'), {
+    subtree: true,
+    attributes: true,
+    attributeOldValue: true,
+    attributeFilter: ['class'],
+    childList: true
 });

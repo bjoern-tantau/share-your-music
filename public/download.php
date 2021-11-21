@@ -18,7 +18,7 @@ $requestedPath = urldecode($_SERVER['REQUEST_URI']);
 $path          = realpath($uploadDir . $requestedPath);
 $authorized    = false;
 
-if (strpos($path, $uploadDir) !== 0 || !is_file($path) || !is_readable($path)) {
+if (strpos($path, $uploadDir) !== 0 || ($request->getMethod() !== 'POST' && (!is_file($path) || !is_readable($path)))) {
     $emitter->emit(
         $response
             ->withStatus(404)
@@ -44,7 +44,7 @@ if ($authorized && $request->getMethod() === 'DELETE') {
 }
 
 if (str_ends_with($path, '.m3u')) {
-    if ($authorized && $request->getMethod() === 'PUT') {
+    if ($authorized && ($request->getMethod() === 'PUT' || $request->getMethod() === 'POST')) {
         $m3uData = new \M3uParser\M3uData();
         foreach ($request->getParsedBody() as $file) {
             $entry    = new \M3uParser\M3uEntry();

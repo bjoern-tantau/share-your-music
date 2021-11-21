@@ -4,9 +4,9 @@ body {
 main {
     display: grid;
     grid-template-areas:
-        "clients clients"
-        "player playlist"
-        "upload files"
+        "clients clients clients"
+        "player playlist files"
+        "upload upload upload"
         ;
 }
 .clients {
@@ -54,6 +54,10 @@ li.dir.open > ul, li.playlist.open > ul {
     display: none;
 }
 
-.delete {
+.delete, .remove {
     margin-left: 1em;
+}
+
+[draggable=true] {
+  cursor: move;
 }
