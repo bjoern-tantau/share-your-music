@@ -13,11 +13,11 @@ class SortableList {
             e.preventDefault();
             if (ul.contains(e.target)) {
                 let li = e.target;
-                while (li.parentNode !== ul) {
+                while (li && li.parentNode !== ul) {
                     li = li.parentNode;
                 }
                 this.lastOver = li;
-                if (this.lastDragged && this.lastDragged != this.lastOver) {
+                if (this.lastOver && this.lastDragged && this.lastDragged != this.lastOver) {
                     this.lastOver.before(this.lastDragged);
                 }
             }

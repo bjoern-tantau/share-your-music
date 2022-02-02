@@ -1,6 +1,7 @@
 import AudioPlayer from './AudioPlayer.js';
 
-const host = 'ws://' + window.ws_hostname + ':' + window.ws_port + '/slave';
+const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+const host = protocol + window.location.host + '/ws/slave';
 
 const query = new URLSearchParams(window.location.search);
 

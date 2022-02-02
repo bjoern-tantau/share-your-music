@@ -20,7 +20,6 @@ if (empty($query['id']) || preg_match('/[^0-9a-f]+/', $query['id'])) {
         <title>Share your Music</title>
         <script>
             window.ws_hostname = <?php echo json_encode($config['ws_hostname']) ?>;
-            window.ws_port = <?php echo json_encode($config['ws_port']) ?>;
         </script>
         <script type="module" src="js/main.js"></script>
         <link rel="stylesheet" type="text/css" href="styles.css" />

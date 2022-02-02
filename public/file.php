@@ -15,16 +15,8 @@ $emitter  = new Laminas\HttpHandlerRunner\Emitter\SapiStreamEmitter();
 
 $uploadDir     = realpath(__DIR__ . '/../uploads');
 $requestedPath = urldecode($_SERVER['REQUEST_URI']);
-$path          = realpath($uploadDir . $requestedPath);
+$path          = $uploadDir . $requestedPath;
 $authorized    = false;
-
-if (strpos($path, $uploadDir) !== 0 || ($request->getMethod() !== 'POST' && (!is_file($path) || !is_readable($path)))) {
-    $emitter->emit(
-        $response
-            ->withStatus(404)
-    );
-    exit;
-}
 
 if (!empty($authorization = $request->getHeaderLine('Authorization'))) {
     $masterId = \Jasny\str_after($authorization, 'MasterId ');
@@ -32,6 +24,30 @@ if (!empty($authorization = $request->getHeaderLine('Authorization'))) {
     if (sha1($masterId) === $clientId) {
         $authorized = true;
     }
+}
+
+if (strpos($path, $uploadDir) !== 0) {
+    $emitter->emit(
+        $response
+            ->withStatus(404)
+    );
+    exit;
+}
+
+if ($request->getMethod() === 'POST' && is_file($path)) {
+    $emitter->emit(
+        $response
+            ->withStatus(409)
+    );
+    exit;
+}
+
+if ($request->getMethod() !== 'POST' && (!realpath($path) || !is_file($path) || !is_readable($path))) {
+    $emitter->emit(
+        $response
+            ->withStatus(404)
+    );
+    exit;
 }
 
 if ($authorized && $request->getMethod() === 'DELETE') {

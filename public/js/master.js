@@ -1,7 +1,8 @@
 import PlaylistPlayer from './PlaylistPlayer.js';
 import SortableList from './SortableList.js';
 
-const host = 'ws://' + window.ws_hostname + ':' + window.ws_port + '/master';
+const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+const host = protocol + window.location.host + '/ws/master';
 const socket = new WebSocket(host);
 
 const query = new URLSearchParams(window.location.search);
@@ -89,32 +90,75 @@ audio.addEventListener('playlistChanged', e => {
     });
 });
 
-document.querySelectorAll('li.playlist').forEach(li => {
-    li.addEventListener('click', e => {
+let lastDragged;
+
+function setupPlaylist(playlist) {
+    playlist.addEventListener('click', e => {
         e.stopPropagation();
-        li.classList.toggle('open');
-    });
-});
-
-document.querySelectorAll('.playlists > ul > li > a').forEach(a => {
-    a.addEventListener('click', event => {
-        event.preventDefault();
-        event.stopPropagation();
-        audio.setPlaylist(a.href)
-                .then(player => player.play());
+        playlist.classList.toggle('open');
     });
 
-    a.parentNode.querySelectorAll('li ul li a').forEach(musicLink => {
-        musicLink.addEventListener('click', event => {
+    playlist.querySelectorAll('ul > li > a').forEach(a => {
+        a.addEventListener('click', event => {
             event.preventDefault();
             event.stopPropagation();
             audio.setPlaylist(a.href)
-                    .then(player => {
-                        player.src = musicLink.href;
-                        player.play();
-                    });
+                    .then(player => player.play());
+        });
+
+        a.parentNode.querySelectorAll('li ul li a').forEach(musicLink => {
+            musicLink.addEventListener('click', event => {
+                event.preventDefault();
+                event.stopPropagation();
+                audio.setPlaylist(a.href)
+                        .then(player => {
+                            player.src = musicLink.href;
+                            player.play();
+                        });
+            });
         });
     });
+    playlist.addEventListener('click', e => {
+        if (e.target.nodeName === 'BUTTON' && e.target.classList.contains('delete')) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.target.parentNode.remove();
+        }
+    }, true);
+
+    playlist.querySelectorAll('a').forEach(a => a.draggable = false);
+    playlist.querySelectorAll('li').forEach(li => li.draggable = true);
+    playlist.querySelectorAll('ul.music').forEach(ul => {
+        ul.addEventListener('drag', e => {
+            if (e.target.parentNode === ul) {
+                lastDragged = e.target;
+            }
+        });
+        ul.addEventListener('dragend', e => {
+            lastDragged = null;
+        });
+
+        const list = new SortableList(ul);
+        ul.addEventListener('drop', e => {
+            e.preventDefault();
+            if (lastDragged.parentNode != ul) {
+                const newLi = lastDragged.cloneNode(true);
+                let over = e.target;
+                while (over && over.parentNode !== ul) {
+                    over = over.parentNode;
+                }
+                if (over) {
+                    over.before(newLi);
+                } else {
+                    ul.appendChild(newLi);
+                }
+            }
+        });
+    });
+}
+
+document.querySelectorAll('li.playlist').forEach(li => {
+    setupPlaylist(li);
 });
 
 document.querySelector('#files').addEventListener('change', e => {
@@ -208,16 +252,6 @@ document.querySelectorAll('.files button.delete').forEach(button => {
     });
 });
 
-document.querySelectorAll('.playlists').forEach(playlists => {
-    playlists.addEventListener('click', e => {
-        if (e.target.nodeName === 'BUTTON' && e.target.classList.contains('delete')) {
-            e.preventDefault();
-            e.stopPropagation();
-            e.target.parentNode.remove();
-        }
-    }, true);
-});
-
 document.querySelectorAll('input.filter').forEach(input => {
     input.addEventListener('input', e => {
         input.parentNode.querySelectorAll('li').forEach(li => {
@@ -236,24 +270,9 @@ document.querySelectorAll('input.filter').forEach(input => {
     });
 });
 
-let lastDragged;
+document.querySelectorAll('li.file a').forEach(a => a.draggable = false);
 
-document.querySelectorAll('li.playlist a, li.file a').forEach(a => a.draggable = false);
-
-document.querySelectorAll('li.playlist li, li.file').forEach(li => {
-    li.draggable = true;
-});
-
-document.querySelectorAll('ul.music').forEach(ul => {
-    ul.addEventListener('drag', e => {
-        if (e.target.parentNode === ul) {
-            lastDragged = e.target;
-        }
-    });
-    ul.addEventListener('dragend', e => {
-        lastDragged = null;
-    });
-});
+document.querySelectorAll('li.file').forEach(li => li.draggable = true);
 
 document.querySelectorAll('.files ul').forEach(ul => {
     ul.addEventListener('drag', e => {
@@ -263,21 +282,6 @@ document.querySelectorAll('.files ul').forEach(ul => {
     });
     ul.addEventListener('dragend', e => {
         lastDragged = null;
-    });
-});
-
-document.querySelectorAll('li.playlist ul').forEach(ul => {
-    const list = new SortableList(ul);
-    ul.addEventListener('drop', e => {
-        e.preventDefault();
-        if (lastDragged.parentNode != ul) {
-            let over = e.target;
-            while (over.parentNode !== ul) {
-                over = over.parentNode;
-            }
-            const newLi = lastDragged.cloneNode(true);
-            over.before(newLi);
-        }
     });
 });
 
@@ -343,4 +347,92 @@ playlistObserver.observe(document.querySelector('.playlists ul'), {
     attributeOldValue: true,
     attributeFilter: ['class'],
     childList: true
+});
+
+
+document.querySelector('.add-playlist .drop').addEventListener('dragover', e => {
+    e.preventDefault();
+});
+document.querySelector('.add-playlist .drop').addEventListener('drop', e => {
+    const ul = document.querySelector('.add-playlist ul');
+    e.preventDefault();
+    if (lastDragged.parentNode != ul) {
+        const newLi = lastDragged.cloneNode(true);
+        let over = e.target;
+        while (over && over.parentNode !== ul) {
+            over = over.parentNode;
+        }
+        if (over) {
+            over.before(newLi);
+        } else {
+            ul.appendChild(newLi);
+        }
+    }
+});
+
+document.querySelector('.add-playlist').addEventListener('click', e => {
+    if (e.target.classList.contains('delete')) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.target.parentNode.remove();
+    }
+});
+
+document.querySelector('.add-playlist').addEventListener('submit', e => {
+    e.preventDefault();
+    const form = e.target;
+    const filename = form.filename.value + '.m3u';
+    const path = '/' + form.clientId.value + '/' + filename;
+
+    const newList = [];
+    form.querySelectorAll('ul a').forEach(a => {
+        const url = new URL(a.href);
+        newList.push(decodeURI(url.pathname));
+    });
+
+    fetch(path, {
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': 'MasterId ' + query.get('id')
+        },
+        method: 'POST',
+        body: JSON.stringify(newList)
+    })
+            .then(response => {
+                if (response.status === 409) {
+                    throw new Error('File already exists');
+                }
+                if (!response.ok) {
+                    throw new Error('Could not process the request');
+                }
+                return response.json();
+            })
+            .then(list => {
+                form.querySelector('ul').innerHTML = '';
+                form.filename.value = '';
+
+                const playlists = document.querySelector('ul.playlists');
+                const playlist = document.createElement('li');
+                playlist.classList.add('playlist');
+                const a = document.createElement('a');
+                a.href = path;
+                a.textContent = filename;
+                playlist.appendChild(a);
+                const music = document.createElement('ul');
+                music.classList.add('music');
+                list.forEach(item => {
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.href = item;
+                    a.textContent = item.split(/[\\/]/).pop();
+                    li.appendChild(a);
+                    music.appendChild(li);
+                });
+                playlist.appendChild(music);
+                playlists.appendChild(playlist);
+                setupPlaylist(playlist);
+            })
+            .catch(alert)
+            ;
 });

@@ -33,6 +33,10 @@ footer {
 .playlist {
     grid-area: playlist;
 }
+.music {
+    min-height: 3em;
+    width: 100%;
+}
 .files {
     grid-area: files;
 }

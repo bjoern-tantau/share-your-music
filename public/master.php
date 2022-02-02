@@ -47,7 +47,6 @@ $uploadDir = realpath($config['upload_dir']) . '/' . $clientId;
         <title>Share your Music</title>
         <script>
             window.ws_hostname = <?php echo json_encode($config['ws_hostname']) ?>;
-            window.ws_port = <?php echo json_encode($config['ws_port']) ?>;
         </script>
         <script type="module" src="js/master.js"></script>
         <link rel="stylesheet" type="text/css" href="styles.css" />
@@ -71,7 +70,20 @@ $uploadDir = realpath($config['upload_dir']) . '/' . $clientId;
             <section class="playlists">
                 <h1>Playlists</h1>
                 <input placeholder="Filter" class="filter" />
-                <ul>
+                <form action="/file.php" method="post" class="add-playlist">
+                    <input type="hidden" name="clientId" value="<?php echo $clientId ?>" />
+                    <fieldset>
+                        <legend>Add Playlist</legend>
+                        <input name="filename" placeholder="Name" required="" />
+                        <button type="submit">&#x1F4E4;</button>
+                        <ul>
+                        </ul>
+                        <div class="drop">
+                            Drop music files here
+                        </div>
+                    </fieldset>
+                </form>
+                <ul class="playlists">
                     <?php
                     $files = glob_recursive($uploadDir . '/*.m3u');
                     array_walk_recursive($files, function ($file, $dir, $params) {
