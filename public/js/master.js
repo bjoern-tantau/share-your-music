@@ -165,6 +165,9 @@ document.querySelector('#files').addEventListener('change', e => {
     const files = Array.from(e.target.files);
     const promises = [];
     const percentages = [];
+    const xhrs = [];
+    const formDatas = [];
+    
     function updateProgress() {
         const progress = document.querySelector('.upload progress');
         progress.value = percentages.reduce((acc, cur) => {
@@ -176,29 +179,36 @@ document.querySelector('#files').addEventListener('change', e => {
         promises.push(new Promise((resolve, reject) => {
             percentages[index] = 0;
 
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', '/upload.php', true);
-            xhr.addEventListener('readystatechange', e => {
-                if (xhr.readyState === 4) {
-                    resolve(xhr);
+            xhrs[index] = new XMLHttpRequest();
+            
+            xhrs[index].open('POST', '/upload.php', true);
+            xhrs[index].addEventListener('readystatechange', e => {
+                if (xhrs[index].readyState === 4) {
+                    resolve(xhrs[index]);
                     updateProgress();
+                    if (xhrs[index + 1]) {
+                        xhrs[index + 1].send(formDatas[index + 1]);
+                    }
                 }
             });
-            xhr.upload.addEventListener('progress', e => {
+            xhrs[index].upload.addEventListener('progress', e => {
                 if (e.lengthComputable) {
                     percentages[index] = Math.round((e.loaded * 100) / e.total);
                     updateProgress();
                 }
             });
-            xhr.upload.addEventListener('load', e => {
+            xhrs[index].upload.addEventListener('load', e => {
                 percentages[index] = 100;
                 updateProgress();
             });
-            const formData = new FormData();
-            formData.append('fullpath', file.webkitRelativePath);
-            formData.append('file', file);
-            formData.append('id', query.get('id'));
-            xhr.send(formData);
+            formDatas[index] = new FormData();
+            formDatas[index].append('fullpath', file.webkitRelativePath);
+            formDatas[index].append('file', file);
+            formDatas[index].append('id', query.get('id'));
+            
+            if (index === 0) {
+                xhrs[index].send(formDatas[index]);
+            }
         }));
     });
     Promise.all(promises)
