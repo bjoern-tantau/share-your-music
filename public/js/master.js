@@ -252,7 +252,7 @@ document.querySelectorAll('.files button.delete').forEach(button => {
                     .then(response => {
                         if (response.status >= 200 && response.status < 400) {
                             document.querySelectorAll('a').forEach(a => {
-                                if (a.href == url) {
+                                if (a.href === url) {
                                     a.parentNode.remove();
                                 }
                             });
